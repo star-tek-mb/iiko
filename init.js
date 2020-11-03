@@ -5,10 +5,13 @@ const iiko = require('./iiko');
 (async function () {
     await database.connect();
     let DB = database.get();
-    await DB.collection('products').drop();
-    await DB.collection('groups').drop();
-    await DB.collection('settings').drop();
-    console.log('deleting products, groups, settings');
+    try {
+        await DB.collection('products').drop();
+        await DB.collection('groups').drop();
+        await DB.collection('settings').drop();
+        await DB.collection('telegram').drop();
+        console.log('deleting products, groups, settings, telegram');
+    } catch (e) { }
     console.log('getting nomenclatures');
     let data = await iiko.getNomenclatures();
     console.log('got nomenclatures');

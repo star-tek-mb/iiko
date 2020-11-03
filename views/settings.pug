@@ -10,14 +10,15 @@ block content
             'price_per_km': 'Стоимость за км, сум'};
     div.container.center-align(style={'margin-top': '40px', 'margin-bottom': '40px', 'color': 'black'})
         form.row.black-text(method='post' action=req.originalUrl)
+            input(type='hidden' name='_csrf' value=req.csrfToken())
             each name, index in names
                 - var option = settings.find((o) => o[index] !== undefined)[index]
                 if index == 'location'
                     div.input-field
-                        input#latitude(type='text' name='location[latitude]' value=option.latitude onchange='refresh()')
+                        input#latitude(type='text' name='location[latitude]' value=option.latitude)
                         label(for='latitude') Широта
                     div.input-field
-                        input#longitude(type='text' name='location[longitude]' value=option.longitude onchange='refresh()')
+                        input#longitude(type='text' name='location[longitude]' value=option.longitude)
                         label(for='latitude') Долгота
                     div#map(style={'height': '400px', 'margin-bottom': '40px'})
                 else
@@ -52,7 +53,10 @@ block head
         | var lat = parseInt(document.getElementById('latitude').value);
         | var lon = parseInt(document.getElementById('longitude').value);
         | locationMap.setCenter([lat, lon]);
+        | placemark.geometry.setCoordinates([lat, lon]);
         | }
         | document.addEventListener("DOMContentLoaded", function () {
         | ymaps.ready(init);
+        | document.getElementById('latitude').addEventListener('change', refresh);
+        | document.getElementById('longitude').addEventListener('change', refresh);
         | });

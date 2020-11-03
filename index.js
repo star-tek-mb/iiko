@@ -1,6 +1,5 @@
 require('dotenv').config();
 const database = require('./database');
-const helmet = require('helmet');
 
 database.connect().then(() => {
     const bot = require('./bot');
@@ -8,11 +7,13 @@ database.connect().then(() => {
     const app = express();
 
     if (process.env.NODE_ENV == 'production') {
-        app.set('trust proxy');
+        app.set('trust proxy', true);
         bot.webhookReply = false;
         bot.telegram.setWebhook(process.env.WEBHOOK_URL + '/' + process.env.TELEGRAM_TOKEN);
         app.use(bot.webhookCallback('/' + process.env.TELEGRAM_TOKEN));
-        app.use(helmet());
+        app.use(require('helmet')({
+            contentSecurityPolicy: false,
+        }));
     } else {
         app.use(express.static('static'));
         (async function () {
