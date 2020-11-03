@@ -3,7 +3,8 @@ const database = require('./database');
 const iiko = require('./iiko');
 
 (async function () {
-    let DB = await database.connect();
+    await database.connect();
+    let DB = database.get();
     await DB.collection('products').drop();
     await DB.collection('groups').drop();
     await DB.collection('settings').drop();
