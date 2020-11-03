@@ -206,6 +206,7 @@ orderDeliveryScene.on('text', async (ctx) => {
         } else {
             let dbLocation = await DB.collection('settings').findOne({ location: { $exists: true } });
             let location = dbLocation.location;
+            await ctx.reply('Наша локация');
             await ctx.replyWithLocation(location.latitude, location.longitude);
             await ctx.scene.enter('orderPayment');
         }
@@ -255,7 +256,8 @@ orderPaymentScene.on('text', async (ctx) => {
 
 const orderConfirmationScene = new Scene('orderConfirmation');
 orderConfirmationScene.enter(async (ctx) => {
-    let number = 1, overall = 0, prices = [];
+    let number = 1, prices = [];
+    let overall = ctx.session.deliveryPrice || 0;
     ctx.session.orderId = uuidv4(); // for iiko
 
     let text = `*Подтвердите заказ*\n\n` +
@@ -271,8 +273,8 @@ orderConfirmationScene.enter(async (ctx) => {
             deliveryPrice = ctx.session.deliveryPrice;
             prices.push({ label: `Стоимость доставки`, amount: deliveryPrice * 100 });
         }
-        deliveryPrice = deliveryPrice.toLocaleString('ru', { maximumFractionDigits: 0 });
-        text += `*Стоимость доставки: ${deliveryPrice} сум*\n\n`;
+        deliveryPrice = deliveryPrice.toLocaleString('ru', { maximumFractionDigits: 0 }) + ' сум';
+        text += `*Стоимость доставки: ${deliveryPrice}*\n\n`;
     }
 
     for (const [id, qty] of Object.entries(ctx.session.cart)) {
