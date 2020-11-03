@@ -1,10 +1,24 @@
 {
+  "devDependencies": {},
   "dependencies": {
     "axios": "^0.21.0",
+    "bcryptjs": "^2.4.3",
+    "cookie-session": "^1.4.0",
+    "csurf": "^1.11.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "lowdb": "^1.0.0",
+    "express-validator": "^6.6.1",
+    "helmet": "^4.2.0",
+    "lodash": "^4.17.20",
+    "mongodb": "^3.6.2",
+    "prompt": "https://github.com/flatiron/prompt",
+    "pug": "^3.0.0",
     "telegraf": "^3.38.0",
-    "telegraf-session-local": "^2.0.0"
+    "uuid": "^8.3.1"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "init": "node init.js",
+    "register": "node register_admin.js"
   }
 }

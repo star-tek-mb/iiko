@@ -1,0 +1,26 @@
+doctype html
+html
+    head
+        title Авторизация
+        meta(name='viewport' content='width=device-width, initial-scale=1.0')
+        script(src='/js/materialize.min.js')
+        script(src='/js/admin.js')
+        link(rel='stylesheet' href='https://fonts.googleapis.com/icon?family=Material+Icons')
+        link(rel='stylesheet' href='/css/materialize.min.css')
+        link(rel='stylesheet' href='/css/admin.css')
+    body
+        div.my-wrapper.valign-wrapper.center-align
+            form.row.z-depth-5.lighten-1.black-text(method='post' action=req.originalUrl)
+                input(type='hidden' name='_csrf' value=req.csrfToken())
+                h1 Авторизация
+                div.input-field
+                    input.validate(type='text' name='user_name' id='user_name'
+                            class={invalid: errors ? errors['user_name'] : ''})
+                    label(for='user_name') Имя пользователя
+                    span.helper-text(data-error=errors ? errors['user_name'] : '')
+                div.input-field
+                    input.validate(type='password' name='user_pass' id='user_pass'
+                            class={invalid: errors ? errors['user_pass'] : ''})
+                    label(for='user_pass') Пароль
+                    span.helper-text(data-error=errors ? errors['user_pass'] : '')
+                input.btn(type='submit' value='Войти')

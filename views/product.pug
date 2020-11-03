@@ -1,0 +1,15 @@
+extends layouts/admin
+
+block title
+    = product.name
+
+block content
+    div.container(style={'margin-top': '20px', 'margin-bottom': '40px'})
+        h1= product.name
+        p
+            b Группа: 
+            | #{parent}
+        p
+            b Цена: 
+            = product.sizePrices[0].price.currentPrice.toLocaleString('ru', { maximumFractionDigits: 0 })
+            |  сум

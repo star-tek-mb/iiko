@@ -1,0 +1,31 @@
+extends layouts/admin
+
+block title
+    | Группы
+
+block content
+    div.container(style={'margin-top': '20px', 'margin-bottom': '40px'})
+        table.highlight(id='table')
+            thead
+                tr
+                    th Имя
+                    th Родитель
+                    th Действие
+            tbody
+                each group in groups
+                    tr
+                        td= group.name
+                        td= (group.parentGroup ? groups[group.parentGroup].name : 'Нет')
+                        td
+                            a(href=(mountpath + '/products/' + group.id)) Смотреть
+
+block head
+    link(rel='stylesheet' href='/css/datatable.css')
+    script(src='/js/datatable.min.js')
+    script
+        | document.addEventListener("DOMContentLoaded", function () {
+        | var dataTable = new simpleDatatables.DataTable("#table", {layout: {
+        | top: "",
+        | bottom: "{pager}"
+        | }});
+        | });

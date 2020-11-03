@@ -1,0 +1,40 @@
+doctype html
+html
+    head
+        title
+            block title
+        meta(name='viewport' content='width=device-width, initial-scale=1.0')
+        script(src='/js/materialize.min.js')
+        script(src='/js/admin.js')
+        link(rel='stylesheet' href='https://fonts.googleapis.com/icon?family=Material+Icons')
+        link(rel='stylesheet' href='/css/materialize.min.css')
+        link(rel='stylesheet' href='/css/admin.css')
+        block head
+    body
+        header
+            nav.lighten-1(role='navigation')
+                div.nav-wrapper.container
+                    a.brand-logo(id='logo-container' href='#')
+                        block title
+                    ul.right
+                        form.hidden(action=mountpath + '/logout' method='post')
+                            input(type='hidden' name='_csrf' value=req.csrfToken())
+                        li: a(onclick='this.parentNode.previousSibling.submit()'): i.material-icons power_settings_new
+                    ul.sidenav.sidenav-fixed(id='nav')
+                        li.logo: a: img(src='/img/home-icon.png')
+                        li(class={active: req.path == '/dashboard'}): a(href=mountpath + '/dashboard')
+                            | Панель
+                            i.material-icons dashboard
+                        li(class={active: req.path.indexOf('/product') != -1}): a(href=mountpath + '/products')
+                            | Продукты
+                            i.material-icons shopping_cart
+                        li(class={active: req.path == '/telegram'}): a(href=mountpath + '/telegram')
+                            | Telegram
+                            i.material-icons send
+                        li(class={active: req.path == '/settings'}): a(href=mountpath + '/settings')
+                            | Настройки
+                            i.material-icons build
+                    a.sidenav-trigger.left(href='#' data-target='nav')
+                        i.material-icons menu
+        main
+            block content
