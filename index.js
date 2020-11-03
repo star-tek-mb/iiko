@@ -13,6 +13,7 @@ database.connect().then(() => {
         app.use(bot.webhookCallback('/' + process.env.TELEGRAM_TOKEN));
         app.use(require('helmet')({
             contentSecurityPolicy: false,
+            referrerPolicy: { policy: "same-origin" },
         }));
     } else {
         app.use(express.static('static'));
