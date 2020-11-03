@@ -1,17 +1,16 @@
 const express = require('express');
 const cookieSession = require('cookie-session');
-const helmet = require('helmet');
 const admin = require('./admin')
 
 module.exports = function (app) {
     app.set('view engine', 'pug');
 
-    //app.use(helmet());
     app.use(express.urlencoded({ extended: true }));
     app.use(cookieSession({
         name: 'session',
         secret: process.env.APP_SECRET,
-        maxAge: 3600 * 1000
+        maxAge: 3600 * 1000,
+        secure: process.env.NODE_ENV == 'production'
     }));
 
     app.get('/', (req, res) => {
