@@ -31,32 +31,32 @@ block head
     script(src='https://api-maps.yandex.ru/2.1/?lang=en_RU&amp;apikey=' + process.env.YANDEXMAP_TOKEN type='text/javascript')
     -
         var location = settings.find((o) => o['location'] !== undefined)['location']
-    script
-        | var locationMap = null;
-        | var placemark = null;
-        | function init() {
-        | locationMap = new ymaps.Map("map", {
-        | center: [41.1500, 63.9805],
-        | zoom: 5
-        | });
-        | placemark = new ymaps.Placemark([#{location.latitude}, #{location.longitude}]);
-        | locationMap.geoObjects.add(placemark);
-        | locationMap.events.add('click', function (e) {
-        | var coords = e.get('coords');
-        | document.getElementById('latitude').value = coords[0].toPrecision(6);
-        | document.getElementById('longitude').value = coords[1].toPrecision(6);
-        | placemark.geometry.setCoordinates([coords[0], coords[1]]);
-        | });
-        | }
-        | function refresh() {
-        | console.log('changed');
-        | var lat = parseInt(document.getElementById('latitude').value);
-        | var lon = parseInt(document.getElementById('longitude').value);
-        | locationMap.setCenter([lat, lon]);
-        | placemark.geometry.setCoordinates([lat, lon]);
-        | }
-        | document.addEventListener("DOMContentLoaded", function () {
-        | ymaps.ready(init);
-        | document.getElementById('latitude').addEventListener('change', refresh);
-        | document.getElementById('longitude').addEventListener('change', refresh);
-        | });
+    script.
+        var locationMap = null;
+        var placemark = null;
+        function init() {
+            locationMap = new ymaps.Map("map", {
+                center: [41.1500, 63.9805],
+                zoom: 5
+            });
+            placemark = new ymaps.Placemark([#{location.latitude}, #{location.longitude}]);
+            locationMap.geoObjects.add(placemark);
+            locationMap.events.add('click', function (e) {
+                var coords = e.get('coords');
+                document.getElementById('latitude').value = coords[0].toPrecision(6);
+                document.getElementById('longitude').value = coords[1].toPrecision(6);
+                placemark.geometry.setCoordinates([coords[0], coords[1]]);
+            });
+        }
+        function refresh() {
+            console.log('changed');
+            var lat = parseInt(document.getElementById('latitude').value);
+            var lon = parseInt(document.getElementById('longitude').value);
+            locationMap.setCenter([lat, lon]);
+            placemark.geometry.setCoordinates([lat, lon]);
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            ymaps.ready(init);
+            document.getElementById('latitude').addEventListener('change', refresh);
+            document.getElementById('longitude').addEventListener('change', refresh);
+        });

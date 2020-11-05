@@ -17,15 +17,16 @@ block content
                         td= group.name
                         td= (group.parentGroup ? groups[group.parentGroup].name : 'Нет')
                         td
-                            a(href=(mountpath + '/products/' + group.id)) Смотреть
+                            a.btn-small(href=(mountpath + '/products/' + group.id))
+                                i.material-icons remove_red_eye
 
 block head
     link(rel='stylesheet' href='/css/datatable.css')
     script(src='/js/datatable.min.js')
-    script
-        | document.addEventListener("DOMContentLoaded", function () {
-        | var dataTable = new simpleDatatables.DataTable("#table", {layout: {
-        | top: "",
-        | bottom: "{pager}"
-        | }});
-        | });
+    script.
+        document.addEventListener("DOMContentLoaded", function () {
+            var dataTable = new simpleDatatables.DataTable("#table", {layout: {
+                top: "",
+                bottom: "{pager}"
+            }});
+        });

@@ -21,10 +21,10 @@ block content
 block head
     link(rel='stylesheet' href='/css/datatable.css')
     script(src='/js/datatable.min.js')
-    script
-        | document.addEventListener("DOMContentLoaded", function () {
-        | var dataTable = new simpleDatatables.DataTable("#table", {layout: {
-        | top: "",
-        | bottom: "{pager}"
-        | }});
-        | });
+    script.
+        document.addEventListener("DOMContentLoaded", function () {
+            var dataTable = new simpleDatatables.DataTable("#table", {layout: {
+                top: "",
+                bottom: "{pager}"
+            }});
+        });
