@@ -270,7 +270,7 @@ orderPaymentScene.on('text', async (ctx) => {
 const orderConfirmationScene = new Scene('orderConfirmation');
 orderConfirmationScene.enter(async (ctx) => {
     let number = 1, prices = [];
-    let overall = ctx.session.deliveryPrice || 0;
+    let overall = parseInt(ctx.session.deliveryPrice) || 0;
     ctx.session.orderId = uuidv4(); // for iiko
 
     let text = `*Подтвердите заказ*\n\n` +
