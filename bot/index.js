@@ -39,6 +39,7 @@ phoneScene.enter((ctx) => {
 });
 phoneScene.on('contact', (ctx) => {
     ctx.session.phone = ctx.message.contact.phone_number;
+    ctx.session.groupId = null;
     ctx.scene.enter('groups');
 });
 phoneScene.on('text', (ctx) => {
@@ -121,8 +122,20 @@ productsScene.on('text', async (ctx) => {
 const productScene = new Scene('product');
 productScene.enter(async (ctx) => {
     let product = await DB.collection('products').findOne({ id: ctx.session.productId });
+    let name = product.name;
+    let desc = product.description || '';
+    let price = parseInt(product.sizePrices[0].price.currentPrice)
+        .toLocaleString('ru', { maximumFractionDigits: 0 });
+    let text = `${name} *${price} сум*\n\n${desc}`;
+    let image = product.imageLinks.length > 0 ? product.imageLinks[0] : null;
+
     let keyboard = [['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9'], ['Корзина', 'Назад']];
-    await ctx.reply(product.name, Markup.keyboard(keyboard).resize().extra());
+    if (image) {
+        await ctx.replyWithPhoto({ url: image }, Markup.keyboard(keyboard).resize()
+            .extra({ caption: text, parse_mode: 'Markdown' }));
+    } else {
+        await ctx.reply(text, Markup.keyboard(keyboard).resize().extra({ parse_mode: 'Markdown' }));
+    }
 });
 productScene.hears('Корзина', (ctx) => {
     ctx.session.prev = 'product';

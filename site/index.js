@@ -16,5 +16,5 @@ module.exports = function (app) {
     app.get('/', (req, res) => {
         res.render('index');
     });
-    app.use('/admin', admin)
+    app.use('/admin', admin);
 }

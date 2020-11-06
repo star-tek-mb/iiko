@@ -16,7 +16,7 @@ block content
                     tr
                         td= product.name
                         td
-                            a.btn-small(href=(mountpath + '/product/' + product.id))
+                            a.btn-small(href=(req.baseUrl + '/product/' + product.id))
                                 i.material-icons remove_red_eye
 
 block head

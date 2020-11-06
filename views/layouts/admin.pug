@@ -17,21 +17,21 @@ html
                     a.brand-logo(id='logo-container' href='#')
                         block title
                     ul.right
-                        form.hidden(action=mountpath + '/logout' method='post')
+                        form.hidden(action=req.baseUrl + '/logout' method='post')
                             input(type='hidden' name='_csrf' value=req.csrfToken())
                         li: a(onclick='this.parentNode.previousSibling.submit()'): i.material-icons power_settings_new
                     ul.sidenav.sidenav-fixed(id='nav')
                         li.logo: a: img(src='/img/home-icon.png')
-                        li(class={active: req.path == '/dashboard'}): a(href=mountpath + '/dashboard')
+                        li(class={active: req.path == '/dashboard'}): a(href=req.baseUrl + '/dashboard')
                             | Панель
                             i.material-icons dashboard
-                        li(class={active: req.path.indexOf('/product') != -1}): a(href=mountpath + '/products')
+                        li(class={active: req.path.indexOf('/product') != -1}): a(href=req.baseUrl + '/products')
                             | Продукты
                             i.material-icons shopping_cart
-                        li(class={active: req.path == '/telegram'}): a(href=mountpath + '/telegram')
+                        li(class={active: req.path == '/telegram'}): a(href=req.baseUrl + '/telegram')
                             | Telegram
                             i.material-icons send
-                        li(class={active: req.path == '/settings'}): a(href=mountpath + '/settings')
+                        li(class={active: req.path == '/settings'}): a(href=req.baseUrl + '/settings')
                             | Настройки
                             i.material-icons build
                     a.sidenav-trigger.left(href='#' data-target='nav')

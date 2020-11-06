@@ -5,12 +5,12 @@ const bcrypt = require('bcryptjs');
 const express = require('express');
 const csurf = require('csurf');
 
-let admin = express();
+let admin = express.Router();
 
 // redirect from login pages
 const ifLoggedin = (req, res, next) => {
     if (req.session.isLoggedIn) {
-        return res.redirect(admin.mountpath + '/dashboard');
+        return res.redirect(req.baseUrl + '/dashboard');
     }
     next();
 };
@@ -19,22 +19,21 @@ admin.use(csurf()); // global csrf protection
 admin.use((req, res, next) => {
     // set global params for views
     res.locals.req = req;
-    res.locals.mountpath = admin.mountpath;
     // redirect if not login pages and not logged in
     if (req.path != '/' && req.path != '/login' && !req.session.isLoggedIn) {
-        return res.redirect(401, admin.mountpath + '/login');
+        return res.redirect(401, req.baseUrl + '/login');
     }
     next();
 });
 admin.get('/', ifLoggedin, (req, res) => {
-    return res.redirect(admin.mountpath + '/login');
+    return res.redirect(req.baseUrl + '/login');
 });
 admin.get('/login', ifLoggedin, (req, res) => {
     return res.render('login');
 });
 admin.post('/logout', (req, res) => {
     req.session.isLoggedIn = false;
-    return res.redirect(admin.mountpath + '/login');
+    return res.redirect(req.baseUrl + '/login');
 });
 admin.post('/login', [
     body('user_name', 'Поле имя пользователя не должно быть пустым').trim().not().isEmpty(),
@@ -47,7 +46,7 @@ admin.post('/login', [
         let check = user ? (await bcrypt.compare(user_pass, user.password)) : false;
         if (check) {
             req.session.isLoggedIn = true;
-            return res.redirect(admin.mountpath + '/dashboard');
+            return res.redirect(req.baseUrl + '/dashboard');
         } else {
             return res.render('login', {
                 errors: { 'user_pass': 'Неверное имя пользователя или пароль' }
