@@ -1,9 +1,10 @@
 const _ = require('lodash');
-const DB = require('../database').get();
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const express = require('express');
 const csurf = require('csurf');
+const DB = require('../database').get();
+const iiko = require('../iiko');
 
 let admin = express.Router();
 
@@ -84,6 +85,16 @@ admin.get('/products', async (req, res) => {
     }
     collect(null);
     return res.render('groups', { groups: groups });
+});
+admin.get('/products/refresh', async (req, res) => {
+    try {
+        await DB.collection('products').drop();
+        await DB.collection('groups').drop();
+    } catch (e) { }
+    let data = await iiko.getNomenclatures();
+    await DB.collection('groups').insertMany(data.groups);
+    await DB.collection('products').insertMany(data.products);
+    return res.redirect('back');
 });
 admin.get('/products/:group', async (req, res) => {
     let group = req.params.group;

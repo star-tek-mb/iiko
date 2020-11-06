@@ -10,7 +10,7 @@ html
         link(rel='stylesheet' href='/css/admin.css')
     body
         div.my-wrapper.valign-wrapper.center-align
-            form.row.z-depth-5.lighten-1.black-text(method='post' action=req.originalUrl)
+            form.row.z-depth-5.lighten-1.black-text(method='post' action=req.originalUrl style={'border-radius': '40px'})
                 input(type='hidden' name='_csrf' value=req.csrfToken())
                 h1 Авторизация
                 div.input-field
