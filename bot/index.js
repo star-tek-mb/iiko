@@ -324,7 +324,7 @@ orderConfirmationScene.on('pre_checkout_query', (ctx) => ctx.answerPreCheckoutQu
 // order confirmation
 async function orderConfirm(ctx) {
     let orderItems = [];
-    let total = ctx.session.deliveryPrice;
+    let total = parseInt(ctx.session.deliveryPrice) || 0;
     for (const [id, qty] of Object.entries(ctx.session.cart)) {
         let product = await DB.collection('products').findOne({ id: id });
         orderItems.push({
