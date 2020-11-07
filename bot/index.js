@@ -39,14 +39,22 @@ phoneScene.enter((ctx) => {
 });
 phoneScene.on('contact', (ctx) => {
     ctx.session.phone = ctx.message.contact.phone_number;
+    if (ctx.session.phone[0] != '+')
+        ctx.session.phone = '+' + ctx.session.phone;
     ctx.session.groupId = null;
+    //await helpers.registerUser(name, phone);
     ctx.scene.enter('groups');
 });
 phoneScene.on('text', (ctx) => {
     ctx.session.phone = ctx.message.text;
+    if (ctx.session.phone[0] != '+')
+        ctx.session.phone = '+' + ctx.session.phone;
     ctx.session.groupId = null;
+    //await helpers.registerUser(name, phone);
     ctx.scene.enter('groups');
 });
+
+// new step - sms handler
 
 // groups
 const groupsScene = new Scene('groups');

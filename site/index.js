@@ -1,11 +1,13 @@
 const express = require('express');
 const cookieSession = require('cookie-session');
 const admin = require('./admin')
+const adminApi = require('./admin_api');
 
 module.exports = function (app) {
     app.set('view engine', 'pug');
 
     app.use(express.urlencoded({ extended: true }));
+    app.use(express.json());
     app.use(cookieSession({
         name: 'session',
         secret: process.env.APP_SECRET,
@@ -17,4 +19,5 @@ module.exports = function (app) {
         res.render('index');
     });
     app.use('/admin', admin);
+    app.use('/api/admin', adminApi);
 }

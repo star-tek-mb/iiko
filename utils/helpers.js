@@ -1,3 +1,5 @@
+const { v4: uuidv4 } = require('uuid');
+
 let rad = function (x) {
     return x * Math.PI / 180;
 };
@@ -31,5 +33,23 @@ module.exports = {
             price = Math.floor(dist - dbFirtsKm.first_km) * dbPerKmPrice.price_per_km;
         }
         return price;
+    },
+    registerUser: async function (name, phone) {
+        let DB = require('../database').get();
+        let user = await DB.collection.findOneAndUpdate({
+            phone: phone
+        }, {
+            $set: {
+                name: name,
+                phone: phone
+            },
+            $setOnInsert: {
+                id: uuidv4()
+            }
+        }, {
+            returnOriginal: true,
+            upsert: true
+        });
+        return user.id;
     }
 };
