@@ -8,6 +8,7 @@ const bcrypt = require('bcryptjs');
 const express = require("express");
 const ObjectId = require('mongodb').ObjectId;
 const DB = require('../database').get();
+const helpers = require('../utils/helpers');
 const iiko = require('../iiko');
 
 let adminApi = express.Router();
@@ -82,14 +83,7 @@ adminApi.get('/product/:product', async (req, res) => {
     return res.json({ group: dbGroup, product: dbProduct });
 });
 adminApi.get('/settings', async (req, res) => {
-    let settings = await DB.collection('settings').find({}).toArray();
-    settings = settings.map((o) => {
-        let m = {};
-        // skip _id field
-        m[Object.entries(o)[1][0]] = Object.entries(o)[1][1];
-        return m;
-    });
-    return res.json({ settings: settings });
+    return res.json({ settings: await helpers.getSettings() });
 });
 adminApi.post('/settings', async (req, res) => {
     let settings = [];

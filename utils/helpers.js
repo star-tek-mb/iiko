@@ -7,6 +7,8 @@ let rad = function (x) {
 module.exports = {
     getDistance: function (p1, p2) {
         let R = 6378137;
+        console.log(p1);
+        console.log(p2);
         let dLat = rad(p2.latitude - p1.latitude);
         let dLong = rad(p2.longitude - p1.longitude);
         let a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -16,21 +18,28 @@ module.exports = {
         let d = R * c;
         return d / 1000;
     },
-    getDeliveryPrice: async function (p) {
+    getSettings: async function () {
         let DB = require('../database').get();
+        let result = {};
+        let settings = await DB.collection('settings').find({}).toArray();
+        settings.map((o) => {
+            // skip _id field
+            result[Object.entries(o)[1][0]] = Object.entries(o)[1][1];
+            return result;
+        });
+        return result;
+    },
+    getDeliveryPrice: async function (p) {
         let price;
-        let dbLocation = await DB.collection('settings').findOne({ location: { $exists: true } });
-        let dbFirtsKm = await DB.collection('settings').findOne({ first_km: { $exists: true } });
-        let dbFirstKmPrice = await DB.collection('settings').findOne({ price_first_km: { $exists: true } });
-        let dbLimitKm = await DB.collection('settings').findOne({ limit_km: { $exists: true } });
-        let dbPerKmPrice = await DB.collection('settings').findOne({ price_per_km: { $exists: true } });
-        let dist = this.getDistance(p, dbLocation.location);
-        if (dist <= dbFirtsKm.first_km) {
-            price = dbFirstKmPrice.price_first_km;
-        } else if (dist > dbLimitKm.limit_km) {
+        let settings = await this.getSettings();
+        console.log(settings.location);
+        let dist = this.getDistance(p, settings.location);
+        if (dist <= settings.first_km) {
+            price = settings.price_first_km;
+        } else if (dist > settings.limit_km) {
             price = -1; // not available
         } else {
-            price = Math.floor(dist - dbFirtsKm.first_km) * dbPerKmPrice.price_per_km;
+            price = Math.floor(dist - settings.first_km) * settings.price_per_km;
         }
         return price;
     },
