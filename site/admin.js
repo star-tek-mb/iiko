@@ -1,79 +1,58 @@
+const passport = require('passport');
+const JwtStrategy = require('passport-jwt').Strategy;
+const ExtractJwt = require('passport-jwt').ExtractJwt;
+const jwt = require('jsonwebtoken');
+
 const _ = require('lodash');
-const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
-const express = require('express');
-const csurf = require('csurf');
+const express = require("express");
+const cors = require('cors');
+const ObjectId = require('mongodb').ObjectId;
 const DB = require('../database').get();
+const helpers = require('../utils/helpers');
 const iiko = require('../iiko');
 
-let admin = express.Router();
+let adminApi = express.Router();
 
-// redirect from login pages
-const ifLoggedin = (req, res, next) => {
-    if (req.session.isLoggedIn) {
-        return res.redirect(req.baseUrl + '/dashboard');
-    }
-    next();
-};
-
-admin.use(csurf()); // global csrf protection
-admin.use((req, res, next) => {
-    // set global params for views
-    res.locals.req = req;
-    // redirect if not login pages and not logged in
-    if (req.path != '/' && req.path != '/login' && !req.session.isLoggedIn) {
-        return res.redirect(401, req.baseUrl + '/login');
-    }
-    next();
-});
-admin.get('/', ifLoggedin, (req, res) => {
-    return res.redirect(req.baseUrl + '/login');
-});
-admin.get('/login', ifLoggedin, (req, res) => {
-    return res.render('login');
-});
-admin.post('/logout', (req, res) => {
-    req.session.isLoggedIn = false;
-    return res.redirect(req.baseUrl + '/login');
-});
-admin.post('/login', [
-    body('user_name', 'Поле имя пользователя не должно быть пустым').trim().not().isEmpty(),
-    body('user_pass', 'Поле пароль не должно быть пустым').trim().not().isEmpty(),
-], async (req, res) => {
-    const validatedData = validationResult(req);
-    const { user_name, user_pass } = req.body;
-    if (validatedData.isEmpty()) {
-        let user = await DB.collection('admins').findOne({ name: user_name });
-        let check = user ? (await bcrypt.compare(user_pass, user.password)) : false;
-        if (check) {
-            req.session.isLoggedIn = true;
-            return res.redirect(req.baseUrl + '/dashboard');
+passport.use(new JwtStrategy({
+    secretOrKey: process.env.APP_SECRET,
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken()
+}, function (jwt_payload, done) {
+    DB.collection('admins').findOne({ _id: ObjectId(jwt_payload.id) }).then((user) => {
+        if (user) {
+            return done(null, user);
         } else {
-            return res.render('login', {
-                errors: { 'user_pass': 'Неверное имя пользователя или пароль' }
-            });
+            return done(null, false);
         }
+    }).catch((err) => {
+        return done(err, false);
+    });
+}));
+
+adminApi.use(cors());
+adminApi.use(passport.initialize());
+adminApi.post('/login', async (req, res) => {
+    let user = await DB.collection('admins').findOne({ name: req.body.user_name });
+    let signed = user ? (await bcrypt.compare(req.body.user_pass, user.password)) : false;
+    if (signed) {
+        let payload = { id: user._id };
+        let token = jwt.sign(payload, process.env.APP_SECRET);
+        return res.json({ token: token });
     } else {
-        let allErrors = validatedData.errors.reduce(function (map, error) {
-            map[error.param] = error.msg;
-            return map;
-        }, {});
-        return res.render('login', {
-            errors: allErrors
-        });
+        return res.status(401).json({ message: 'user not found or password mismatched' });
     }
 });
-admin.get('/dashboard', async (req, res) => {
-    let groupsCount = await DB.collection('groups').countDocuments({ isGroupModifier: false });
-    let productsCount = await DB.collection('products').countDocuments({ type: 'Dish' }); // ??? orderItemType: 'Product'
-    let usersCount = await DB.collection('telegram').countDocuments();
-    return res.render('dashboard', { groups: groupsCount, products: productsCount, users: usersCount });
+
+adminApi.use(passport.authenticate('jwt', { session: false }));
+adminApi.get('/status', (req, res) => {
+    return res.json({ message: 'ok' });
 });
-admin.get('/telegram', async (req, res) => {
-    let users = await DB.collection('telegram').find({}).toArray();
-    return res.render('telegram', { users: users });
+adminApi.get('/users/:group', async (req, res) => {
+    let group = req.params.group;
+    let users = await DB.collection(group).find({}).toArray();
+    return res.json({ users: users });
 });
-admin.get('/products', async (req, res) => {
+adminApi.get('/groups', async (req, res) => {
     let dbGroups = await DB.collection('groups').find({}).toArray();
     let groups = {};
     function collect(group) {
@@ -84,9 +63,9 @@ admin.get('/products', async (req, res) => {
         }
     }
     collect(null);
-    return res.render('groups', { groups: groups });
+    return res.json(groups);
 });
-admin.get('/products/refresh', async (req, res) => {
+adminApi.get('/products/refresh', async (req, res) => {
     try {
         await DB.collection('products').drop();
         await DB.collection('groups').drop();
@@ -94,31 +73,24 @@ admin.get('/products/refresh', async (req, res) => {
     let data = await iiko.getNomenclatures();
     await DB.collection('groups').insertMany(data.groups);
     await DB.collection('products').insertMany(data.products);
-    return res.redirect('back');
+    return res.json({ message: 'ok' });
 });
-admin.get('/products/:group', async (req, res) => {
+adminApi.get('/products/:group', async (req, res) => {
     let group = req.params.group;
     let dbGroup = await DB.collection('groups').findOne({ id: group });
     let dbProducts = await DB.collection('products').find({ parentGroup: group }).toArray();
-    return res.render('products', { products: dbProducts, parent: dbGroup.name });
+    return res.json({ group: dbGroup, products: dbProducts });
 });
-admin.get('/product/:product', async (req, res) => {
+adminApi.get('/product/:product', async (req, res) => {
     let product = req.params.product;
     let dbProduct = await DB.collection('products').findOne({ id: product });
     let dbGroup = await DB.collection('groups').findOne({ id: dbProduct.parentGroup });
-    return res.render('product', { product: dbProduct, parent: dbGroup.name });
+    return res.json({ group: dbGroup, product: dbProduct });
 });
-admin.get('/settings', async (req, res) => {
-    let settings = await DB.collection('settings').find({}).toArray();
-    settings = settings.map((o) => {
-        let m = {};
-        // skip _id field
-        m[Object.entries(o)[1][0]] = Object.entries(o)[1][1];
-        return m;
-    });
-    return res.render('settings', { settings: settings });
+adminApi.get('/settings', async (req, res) => {
+    return res.json({ settings: await helpers.getSettings() });
 });
-admin.post('/settings', async (req, res) => {
+adminApi.post('/settings', async (req, res) => {
     let settings = [];
     for ([index, val] of Object.entries(req.body)) {
         let map = {};
@@ -127,13 +99,7 @@ admin.post('/settings', async (req, res) => {
     }
     await DB.collection('settings').drop();
     await DB.collection('settings').insertMany(settings);
-    return res.redirect('back');
+    return res.json({ message: 'ok' });
 });
 
-// 404 errors
-admin.get('*', (req, res) => {
-    res.status(404);
-    return res.render('not-found');
-});
-
-module.exports = admin;
+module.exports = adminApi;

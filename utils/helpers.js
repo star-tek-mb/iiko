@@ -45,7 +45,7 @@ module.exports = {
     },
     registerUser: async function (name, phone) {
         let DB = require('../database').get();
-        let user = await DB.collection.findOneAndUpdate({
+        let user = await DB.collection('users').findOneAndUpdate({
             phone: phone
         }, {
             $set: {

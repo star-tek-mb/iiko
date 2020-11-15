@@ -16,7 +16,7 @@ database.connect().then(() => {
             referrerPolicy: { policy: "same-origin" },
         }));
     } else {
-        app.use(express.static('static'));
+        app.use(express.static('dist'));
         (async function () {
             bot.launch();
         })();
