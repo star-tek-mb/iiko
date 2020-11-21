@@ -83,7 +83,7 @@ export default {
         selected: function (id) {
             api.get('/products/' + id)
                 .then(r => {
-                    this.group = r.group.id;
+                    this.group = r.data.group.id;
                     this.dbProducts = r.data.products;
                 }).catch(e => {
                     this.$notification.show('Не удалось получить продукты', 'danger');
