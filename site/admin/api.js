@@ -2,7 +2,7 @@ import axios from 'axios';
 import router from './router';
 
 const api = axios.create({
-    baseURL: 'http://192.168.20.20:5000/api/admin'
+    baseURL: process.env.WEBHOOK_URL + '/api/admin'
 });
 
 api.interceptors.request.use(async config => {
